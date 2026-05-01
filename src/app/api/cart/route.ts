@@ -6,7 +6,9 @@ import { getUserFromRequest } from "@/lib/supabase/auth";
 import { getUserCart, addToCart } from "@/domain/cart";
 import { z } from "zod";
 
-export const OPTIONS = optionsHandler;
+export function OPTIONS(req: NextRequest) {
+  return optionsHandler(req);
+}
 
 const addItemSchema = z.object({
   product_id: z.string().uuid(),

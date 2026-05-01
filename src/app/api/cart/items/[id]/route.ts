@@ -6,7 +6,9 @@ import { getUserFromRequest } from "@/lib/supabase/auth";
 import { updateCartItem, removeCartItem } from "@/domain/cart";
 import { z } from "zod";
 
-export const OPTIONS = optionsHandler;
+export function OPTIONS(req: NextRequest) {
+  return optionsHandler(req);
+}
 
 type Ctx = { params: { id: string } };
 

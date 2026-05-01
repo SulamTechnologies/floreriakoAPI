@@ -49,12 +49,13 @@ export class ApiError extends Error {
   }
 }
 
-function toResponse(error: ApiError) {
+function toResponse(error: ApiError, req: NextRequest) {
   return applyCors(
     NextResponse.json(
       { error: { code: error.code, message: error.message, details: error.details } },
       { status: error.statusCode },
     ),
+    req,
   );
 }
 
@@ -64,10 +65,10 @@ export function withErrorHandling(handler: RouteHandler): RouteHandler {
   return async (req, ctx) => {
     try {
       const response = await handler(req, ctx);
-      return applyCors(response);
+      return applyCors(response, req);
     } catch (err) {
       if (err instanceof ApiError) {
-        return toResponse(err);
+        return toResponse(err, req);
       }
 
       if (err instanceof ZodError) {
@@ -78,11 +79,12 @@ export function withErrorHandling(handler: RouteHandler): RouteHandler {
             },
             { status: 400 },
           ),
+          req,
         );
       }
 
       console.error("[unhandled error]", err);
-      return toResponse(ApiError.internal());
+      return toResponse(ApiError.internal(), req);
     }
   };
 }

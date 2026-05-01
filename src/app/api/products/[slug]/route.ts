@@ -4,7 +4,9 @@ import { withErrorHandling } from "@/lib/errors";
 import { optionsHandler } from "@/lib/cors";
 import { getProductBySlug } from "@/domain/products";
 
-export const OPTIONS = optionsHandler;
+export function OPTIONS(req: NextRequest) {
+  return optionsHandler(req);
+}
 
 type Ctx = { params: { slug: string } };
 

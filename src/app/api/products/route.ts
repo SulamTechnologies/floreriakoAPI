@@ -5,7 +5,9 @@ import { optionsHandler } from "@/lib/cors";
 import { productQuerySchema } from "@/lib/validation/schemas";
 import { getProducts } from "@/domain/products";
 
-export const OPTIONS = optionsHandler;
+export function OPTIONS(req: NextRequest) {
+  return optionsHandler(req);
+}
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
