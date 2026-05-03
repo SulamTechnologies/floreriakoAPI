@@ -20,39 +20,35 @@ const updateSchema = z.object({
     .optional(),
 });
 
-export const PATCH = withErrorHandling(
-  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
-    await requireRole(req, "admin");
-    const { id } = await params;
-    const body = await req.json();
-    const parsed = updateSchema.parse(body);
+export const PATCH = withErrorHandling(async (req: NextRequest, ctx: unknown) => {
+  await requireRole(req, "admin");
+  const { id } = (ctx as { params: { id: string } }).params;
+  const body = await req.json();
+  const parsed = updateSchema.parse(body);
 
-    const { data, error } = await supabase
-      .from("categories")
-      .update(parsed)
-      .eq("id", id)
-      .select("id, slug, name")
-      .single();
+  const { data, error } = await supabase
+    .from("categories")
+    .update(parsed)
+    .eq("id", id)
+    .select("id, slug, name")
+    .single();
 
-    if (error) {
-      if (error.code === "23505") throw ApiError.conflict("Slug ya en uso");
-      throw ApiError.internal("Error al actualizar categoría");
-    }
-    if (!data) throw ApiError.notFound("Categoría no encontrada");
+  if (error) {
+    if (error.code === "23505") throw ApiError.conflict("Slug ya en uso");
+    throw ApiError.internal("Error al actualizar categoría");
+  }
+  if (!data) throw ApiError.notFound("Categoría no encontrada");
 
-    return NextResponse.json(data);
-  },
-);
+  return NextResponse.json(data);
+});
 
-export const DELETE = withErrorHandling(
-  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
-    await requireRole(req, "admin");
-    const { id } = await params;
+export const DELETE = withErrorHandling(async (req: NextRequest, ctx: unknown) => {
+  await requireRole(req, "admin");
+  const { id } = (ctx as { params: { id: string } }).params;
 
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+  const { error } = await supabase.from("categories").delete().eq("id", id);
 
-    if (error) throw ApiError.internal("Error al eliminar categoría");
+  if (error) throw ApiError.internal("Error al eliminar categoría");
 
-    return NextResponse.json({ success: true });
-  },
-);
+  return NextResponse.json({ success: true });
+});
