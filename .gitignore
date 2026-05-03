@@ -9,6 +9,7 @@ build/
 # ── Environment variables — NEVER commit ──────────────────────────────────────
 .env
 .env.*
+!.env.example
 
 # ── Logs ───────────────────────────────────────────────────────────────────────
 logs/
@@ -44,3 +45,6 @@ coverage/
 *.pem
 *.key
 *.p12
+
+# ── Supabase (local reference only) ────────────────────────────────────────────
+supabase/

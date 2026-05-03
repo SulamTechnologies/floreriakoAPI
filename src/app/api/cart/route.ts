@@ -4,16 +4,11 @@ import { withErrorHandling } from "@/lib/errors";
 import { optionsHandler } from "@/lib/cors";
 import { getUserFromRequest } from "@/lib/supabase/auth";
 import { getUserCart, addToCart } from "@/domain/cart";
-import { z } from "zod";
+import { cartItemSchema } from "@/lib/validation/schemas";
 
 export function OPTIONS(req: NextRequest) {
   return optionsHandler(req);
 }
-
-const addItemSchema = z.object({
-  product_id: z.string().uuid(),
-  quantity: z.number().int().min(1).max(99),
-});
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   const user = await getUserFromRequest(req);
@@ -24,7 +19,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 export const POST = withErrorHandling(async (req: NextRequest) => {
   const user = await getUserFromRequest(req);
   const body = await req.json();
-  const parsed = addItemSchema.safeParse(body);
+  const parsed = cartItemSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       {

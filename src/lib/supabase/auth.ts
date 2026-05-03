@@ -5,7 +5,7 @@ import { ApiError } from "@/lib/errors";
 interface Profile {
   id: string;
   full_name: string | null;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "sudo";
   created_at: string;
 }
 
@@ -27,7 +27,7 @@ export async function getUserFromRequest(req: NextRequest) {
   return data.user;
 }
 
-export async function requireRole(req: NextRequest, role: "admin" | "customer") {
+export async function requireRole(req: NextRequest, role: "admin" | "customer" | "sudo") {
   const user = await getUserFromRequest(req);
 
   const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
@@ -38,9 +38,10 @@ export async function requireRole(req: NextRequest, role: "admin" | "customer") 
 
   const profile = data as unknown as Profile;
 
-  if (profile.role !== role && profile.role !== "admin") {
-    throw ApiError.forbidden();
-  }
+  // sudo bypasses all role checks; admin bypasses customer checks
+  if (profile.role === "sudo") return { user, profile };
+  if (role !== "sudo" && profile.role === "admin") return { user, profile };
+  if (profile.role !== role) throw ApiError.forbidden();
 
   return { user, profile };
 }
